@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<script>
+    <arguments>
+        <argument argument-name="width" default-value="1.5" label-name="Width (m)"/>
+        <argument argument-name="height" default-value="3.0" label-name="Height (m)"/>
+    </arguments>
+</script>
