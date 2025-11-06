@@ -25,5 +25,6 @@ user_scripts/
 2. Your custom scripts should be placed in the `my scripts` folder.
 
 ## License
-
-[Add your chosen license information here]
+Proprietary software.
+Copyright (c) 2025 Leslie Heintz. All rights reserved.
+Not for distribution or reuse without explicit permission.
