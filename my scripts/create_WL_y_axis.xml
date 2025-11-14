@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<script>
+    <arguments>
+        <argument argument-name="surfaceNumber" default-value="1" label-name="Surface Number"/>
+        <argument argument-name="loadValue" default-value="1.5" label-name="Load (kN/m²)"/>
+    </arguments>
+</script>

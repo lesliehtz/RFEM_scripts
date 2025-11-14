@@ -7,7 +7,7 @@ run("includes/Tools/clearAll.js");  // Clear the model first
 if (typeof height === "undefined") { height = 3.0; }
 if (typeof width === "undefined") { width = 1.5; }
 var thickness = 0.016;  // 16mm thickness
-var materialName = "Laminated heat strengthened glass";
+var materialName = "Laminated heat-strengthened glass";
 
 // Create material and thickness
 var material = new Material(1, materialName);
