@@ -6,8 +6,8 @@ This repository contains automation scripts for RFEM software, specifically focu
 
 ```
 user_scripts/
-├── my scripts/            # Main scripts folder containing engineering scripts
-│   └── utilities/         # Helper and utility scripts
+├── js_scripts/            # Main scripts folder containing js scripts
+├── py_scripts/            # Work in Progress - Python script testing  
 ├── from_RFEM/             # Original RFEM files (ignored in git)
 │   ├── examples/          # RFEM example scripts
 │   └── includes/          # RFEM shared functions and modules
@@ -21,8 +21,6 @@ user_scripts/
    ```
    %LOCALAPPDATA%\DLUBAL\RFEM6_6.04\user_scripts
    ```
-
-2. Your custom scripts should be placed in the `my scripts` folder.
 
 ## License
 Proprietary software.
