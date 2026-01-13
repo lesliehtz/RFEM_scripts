@@ -23,18 +23,20 @@ for (var row = 0; row <= numRows; row++) {
 // Calculate number of nodes per row for line creation
 var nodesPerRow = numCols + 1;
 
-// Create lines to form rectangles
-for (var row = 0; row < numRows; row++) {
+// Create horizontal lines (left to right)
+for (var row = 0; row <= numRows; row++) {
     for (var col = 0; col < numCols; col++) {
         var baseNode = row * nodesPerRow + col + 1;
-        
         var line = new Line();
-        // Create horizontal lines
         line.Polyline(lineNumber++, [baseNode, baseNode + 1]);
-        line.Polyline(lineNumber++, [baseNode + nodesPerRow, baseNode + nodesPerRow + 1]);
-        
-        // Create vertical lines
+    }
+}
+
+// Create vertical lines (bottom to top)
+for (var col = 0; col <= numCols; col++) {
+    for (var row = 0; row < numRows; row++) {
+        var baseNode = row * nodesPerRow + col + 1;
+        var line = new Line();
         line.Polyline(lineNumber++, [baseNode, baseNode + nodesPerRow]);
-        line.Polyline(lineNumber++, [baseNode + 1, baseNode + nodesPerRow + 1]);
     }
 }
