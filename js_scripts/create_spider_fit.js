@@ -72,41 +72,97 @@ centerX /= cornerNodes.length;
 centerY /= cornerNodes.length;
 centerZ /= cornerNodes.length;
 
-// Sort corner nodes to identify corners properly (bottom-left, bottom-right, top-right, top-left)
-// Assuming surface is in XZ plane (Y is constant)
+// Calculate surface normal using cross product of two edge vectors
+// This works for any orientation
+var edge1 = {
+    x: cornerNodes[1].coordinate_1 - cornerNodes[0].coordinate_1,
+    y: cornerNodes[1].coordinate_2 - cornerNodes[0].coordinate_2,
+    z: cornerNodes[1].coordinate_3 - cornerNodes[0].coordinate_3
+};
+var edge2 = {
+    x: cornerNodes[2].coordinate_1 - cornerNodes[0].coordinate_1,
+    y: cornerNodes[2].coordinate_2 - cornerNodes[0].coordinate_2,
+    z: cornerNodes[2].coordinate_3 - cornerNodes[0].coordinate_3
+};
+
+// Cross product to get normal
+var normal = {
+    x: edge1.y * edge2.z - edge1.z * edge2.y,
+    y: edge1.z * edge2.x - edge1.x * edge2.z,
+    z: edge1.x * edge2.y - edge1.y * edge2.x
+};
+
+// Normalize the normal vector
+var normalLength = Math.sqrt(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
+normal.x /= normalLength;
+normal.y /= normalLength;
+normal.z /= normalLength;
+
+// Sort corner nodes to identify corners properly
+// Use distance from a reference point to ensure consistent ordering
+var refPoint = cornerNodes[0];
 cornerNodes.sort(function(a, b) {
-    // Sort by Z first (height), then by X (width)
-    if (Math.abs(a.coordinate_3 - b.coordinate_3) > 0.001) {
-        return a.coordinate_3 - b.coordinate_3;
-    }
-    return a.coordinate_1 - b.coordinate_1;
+    var distA = Math.sqrt(
+        Math.pow(a.coordinate_1 - refPoint.coordinate_1, 2) +
+        Math.pow(a.coordinate_2 - refPoint.coordinate_2, 2) +
+        Math.pow(a.coordinate_3 - refPoint.coordinate_3, 2)
+    );
+    var distB = Math.sqrt(
+        Math.pow(b.coordinate_1 - refPoint.coordinate_1, 2) +
+        Math.pow(b.coordinate_2 - refPoint.coordinate_2, 2) +
+        Math.pow(b.coordinate_3 - refPoint.coordinate_3, 2)
+    );
+    return distA - distB;
 });
 
 // Create spider fitting nodes (offset from corners toward center)
 var spiderNodes = [];
 var startNodeNumber = nodes.count() + 1;
 
-// Define offset directions for each corner (inward along edges)
-// After sorting: [0] = bottom-left, [1] = bottom-right, [2] = top-left, [3] = top-right
-// Bottom nodes need +Z (upward), top nodes need -Z (downward)
-var offsetDirections = [
-    [1, 0, 1],    // bottom-left corner: +X (right), +Z (up)
-    [-1, 0, 1],   // bottom-right corner: -X (left), +Z (up)
-    [1, 0, -1],   // top-left corner: +X (right), -Z (down)
-    [-1, 0, -1]   // top-right corner: -X (left), -Z (down)
-];
-
 // Tolerance for comparing node positions (in meters)
 var positionTolerance = 0.001;  // 1mm tolerance
 
 for (var i = 0; i < cornerNodes.length; i++) {
     var corner = cornerNodes[i];
-    var direction = offsetDirections[i];
     
-    // Calculate new node position (100mm from corner along both surface axes)
-    var newX = corner.coordinate_1 + direction[0] * spiderOffset;
-    var newY = corner.coordinate_2 + direction[1] * spiderOffset;
-    var newZ = corner.coordinate_3 + direction[2] * spiderOffset;
+    // Calculate vector from corner to center
+    var toCenter = {
+        x: centerX - corner.coordinate_1,
+        y: centerY - corner.coordinate_2,
+        z: centerZ - corner.coordinate_3
+    };
+    
+    // Project this vector onto the surface plane (remove component along normal)
+    var dotProduct = toCenter.x * normal.x + toCenter.y * normal.y + toCenter.z * normal.z;
+    var projectedVector = {
+        x: toCenter.x - dotProduct * normal.x,
+        y: toCenter.y - dotProduct * normal.y,
+        z: toCenter.z - dotProduct * normal.z
+    };
+    
+    // Normalize the projected vector
+    var projLength = Math.sqrt(
+        projectedVector.x * projectedVector.x +
+        projectedVector.y * projectedVector.y +
+        projectedVector.z * projectedVector.z
+    );
+    
+    if (projLength > 0.0001) {  // Avoid division by zero
+        projectedVector.x /= projLength;
+        projectedVector.y /= projLength;
+        projectedVector.z /= projLength;
+        
+        // Apply offset along this direction (stays in plane)
+        var newX = corner.coordinate_1 + projectedVector.x * spiderOffset;
+        var newY = corner.coordinate_2 + projectedVector.y * spiderOffset;
+        var newZ = corner.coordinate_3 + projectedVector.z * spiderOffset;
+    } else {
+        // Fallback if projection fails
+        console.log("Warning: Could not calculate proper offset direction for corner " + i);
+        var newX = corner.coordinate_1;
+        var newY = corner.coordinate_2;
+        var newZ = corner.coordinate_3;
+    }
     
     // Check if a node already exists at this location
     var existingNodeNo = null;
