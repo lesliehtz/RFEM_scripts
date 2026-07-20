@@ -1,0 +1,14 @@
+# Ignore RFEM original examples and includes
+from_RFEM/
+
+# IDE files
+.vscode/
+*.code-workspace
+
+# Temporary files
+*.bak
+*.tmp
+
+# Windows system files
+desktop.ini
+Thumbs.db

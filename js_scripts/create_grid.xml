@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<script>
+    <arguments>
+        <argument argument-name="panelWidth" default-value="1.5" label-name="Panel Width (m)"/>
+        <argument argument-name="panelHeight" default-value="3.0" label-name="Panel Height (m)"/>
+        <argument argument-name="numRows" default-value="3" label-name="Number of Rows"/>
+        <argument argument-name="numCols" default-value="3" label-name="Number of Columns"/>
+    </arguments>
+</script>
