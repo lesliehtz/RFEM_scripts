@@ -1,0 +1,351 @@
+/**
+ * Creates modal analysis settings high level function
+ * @class
+ * @constructor
+ * @classdesc Modal analysis settings high level function
+ * @param {Number} no unique ID of modal analysis settings
+ * @param {String} solverMethod solver method()
+ * @param {String} beyondFrequency Setting of eigenvectors beyond frequency
+ * @param {String} maximalFrequency Setting of eigenvectors maximal frequency
+ * @param {String} comment  Comment, empty by default
+ * @param {Object} params Modal analysis settings parameters, empty by default
+ * @example
+ * // returns 2
+ * globalNS.method1(5, 10);
+ * @returns Object ModalAnalysisSettings
+*/
+ function ModalAnalysisSettings(no,
+  solverMethod,
+  beyondFrequency,
+  maximalFrequency,
+  comment,
+  params) {
+
+  if (arguments.length !== 0) {
+    ASSERT(typeof no != undefined || typeof no != "number", "No must be assigned as an integer.");
+
+    if (no === undefined) {
+      var MAS = modal_analysis_settings.create();
+    }
+    else {
+      var MAS = modal_analysis_settings.create(no);
+    }
+    // console.log("New modal analysis settings no. " + MAS.no + " was created");
+
+    if (solverMethod != undefined) {
+      if (RFEM) {
+        MAS.solution_method = SolverMethodType(solverMethod);
+      }
+    }
+
+    if (beyondFrequency != undefined) {
+      MAS.find_eigenvectors_beyond_frequency = true;
+      MAS.frequency = beyondFrequency;
+    }
+
+    if (maximalFrequency != undefined) {
+      if (MAS.number_of_modes_method === modal_analysis_settings.NUMBER_OF_MODES_METHOD_MAXIMUM_FREQUENCY) {
+        MAS.maxmimum_natural_frequency = maximalFrequency;
+      }
+    }
+
+    this.Settings = MAS;
+    set_comment_and_parameters(this.Settings, comment, params);
+    // console.log("-- Finish. Object created. --");
+    // object for creation new supports with callback link to instance
+    var self = this;
+    return self;
+  }
+}
+
+/**
+ * Creates modal analysis settings
+ * @param {int} no
+ * @param {string} name
+ * @param {int} numberOfModes
+ * @param {string} solverMethod
+ * @param {string} typeOfMassMatrix
+ * @param {string} massConversion
+ * @param {array} actingMasses
+ * @param {string} comment
+ * @param {dictionary} params
+ * @returns Object ModalAnalysisSettings
+ */
+
+ModalAnalysisSettings.prototype.UserDefinedNumberOfModes = function (no, name, numberOfModes, solverMethod, typeOfMassMatrix, massConversion, actingMasses, comment, params) {
+
+  this.Settings = CreateModalAnalysisSettings(no, name);
+  this.Settings.number_of_modes_method = modal_analysis_settings.NUMBER_OF_MODES_METHOD_USER_DEFINED;
+
+  if (numberOfModes !== undefined) {
+    this.Settings.number_of_modes = numberOfModes;
+  }
+  else {
+    this.Settings.number_of_modes = 4;
+  }
+
+  if (RFEM) {
+    this.Settings.solution_method = SolverMethodType(solverMethod);
+  }
+
+  this.Settings.mass_matrix_type = MassMatrixType(typeOfMassMatrix);
+
+  this.Settings.mass_conversion_type = MassConversionType(massConversion);
+
+  SetActingMasses(this.Settings, actingMasses);
+
+  set_comment_and_parameters(this.Settings, comment, params);
+  // console.log("-- Finish. Object created. --");
+
+  var self = this;
+  return self;
+};
+
+/**
+ *
+ * @param {*} no
+ * @param {*} name
+ * @param {*} effectiveModalMassFactor
+ * @param {*} solverMethod
+ * @param {*} typeOfMassMatrix
+ * @param {*} massConversion
+ * @param {*} actingMasses
+ * @param {*} comment
+ * @param {*} params
+ * @returns Object ModalAnalysisSettings
+ */
+ModalAnalysisSettings.prototype.AutomaticNumberOfModesToReachEffMass = function (no, name, effectiveModalMassFactor, solverMethod, typeOfMassMatrix, massConversion, actingMasses, comment, params) {
+
+  this.Settings = CreateModalAnalysisSettings(no, name);
+
+  this.Settings.number_of_modes_method = modal_analysis_settings.NUMBER_OF_MODES_METHOD_EFFECTIVE_MASS_FACTORS;
+  if (effectiveModalMassFactor !== undefined) {
+    this.Settings.effective_modal_mass_factor = effectiveModalMassFactor;
+  } else {
+    this.Settings.effective_modal_mass_factor = 0.9;
+  }
+  if (RFEM) {
+    this.Settings.solution_method = SolverMethodType(solverMethod);
+  }
+  this.Settings.mass_matrix_type = MassMatrixType(typeOfMassMatrix);
+
+  this.Settings.mass_conversion_type = MassConversionType(massConversion);
+
+  SetActingMasses(this.Settings, actingMasses);
+
+  set_comment_and_parameters(this.Settings, comment, params);
+  // console.log("-- Finish. Object created. --");
+
+  var self = this;
+  return self;
+};
+
+/**
+ *
+ * @param {*} no
+ * @param {*} name
+ * @param {*} maxNaturalFrequency
+ * @param {*} solverMethod
+ * @param {*} typeOfMassMatrix
+ * @param {*} massConversion
+ * @param {*} actingMasses
+ * @param {*} comment
+ * @param {*} params
+ * @returns Object ModalAnalysisSettings
+ */
+ModalAnalysisSettings.prototype.AutomaticNumberOfModesToReachMaxFreq = function (no, name, maxNaturalFrequency, solverMethod, typeOfMassMatrix, massConversion, actingMasses, comment, params) {
+
+  this.Settings = CreateModalAnalysisSettings(no, name);
+
+  this.Settings.number_of_modes_method = modal_analysis_settings.NUMBER_OF_MODES_METHOD_MAXIMUM_FREQUENCY;
+  if (maxNaturalFrequency !== undefined) {
+    this.Settings.maxmimum_natural_frequency = maxNaturalFrequency;
+  } else {
+    this.Settings.maxmimum_natural_frequency = 1600;
+  }
+  if (RFEM) {
+    this.Settings.solution_method = SolverMethodType(solverMethod);
+  }
+  this.Settings.mass_matrix_type = MassMatrixType(typeOfMassMatrix);
+
+  this.Settings.mass_conversion_type = MassConversionType(massConversion);
+
+  SetActingMasses(this.Settings, actingMasses);
+
+  set_comment_and_parameters(this.Settings, comment, params);
+  // console.log("-- Finish. Object created. --");
+
+  var self = this;
+  return self;
+};
+
+/**
+ * Sets Mass matrix In direction
+ * @param {Boolean} acting_masses_in_direction_x_enabled  In direction X, can be undefined (is not set, true as default)
+ * @param {Boolean} acting_masses_in_direction_y_enabled  In direction Y, can be undefined (is not set, true as default)
+ * @param {Boolean} acting_masses_in_direction_z_enabled  In direction Z, can be undefined (is not set, true as default)
+ */
+ModalAnalysisSettings.prototype.SetMassMatrixSettingsInDirection = function (
+  acting_masses_in_direction_x_enabled,
+  acting_masses_in_direction_y_enabled,
+  acting_masses_in_direction_z_enabled) {
+  if (typeof acting_masses_in_direction_x_enabled !== "undefined") {
+    this.Settings.acting_masses_in_direction_x_enabled = acting_masses_in_direction_x_enabled;
+  }
+  if (typeof acting_masses_in_direction_y_enabled !== "undefined") {
+    this.Settings.acting_masses_in_direction_y_enabled = acting_masses_in_direction_y_enabled;
+  }
+  if (typeof acting_masses_in_direction_z_enabled !== "undefined") {
+    this.Settings.acting_masses_in_direction_z_enabled = acting_masses_in_direction_z_enabled;
+  }
+};
+
+/**
+ * Sets Mass matrix About axis
+ * @param {Boolean} acting_masses_about_axis_x_enabled  About axis X, can be undefined (is not set, true as default)
+ * @param {Boolean} acting_masses_about_axis_y_enabled  About axis Y, can be undefined (is not set, true as default)
+ * @param {Boolean} acting_masses_about_axis_z_enabled  About axis Z, can be undefined (is not set, true as default)
+ */
+ModalAnalysisSettings.prototype.SetMasMatrixSettingsAboutAxis = function (
+  acting_masses_about_axis_x_enabled,
+  acting_masses_about_axis_y_enabled,
+  acting_masses_about_axis_z_enabled) {
+  if (typeof acting_masses_about_axis_x_enabled !=="undefined") {
+    this.Settings.acting_masses_about_axis_x_enabled = acting_masses_about_axis_x_enabled;
+  }
+  if (typeof acting_masses_about_axis_y_enabled !== "undefined") {
+    this.Settings.acting_masses_about_axis_y_enabled = acting_masses_about_axis_y_enabled;
+  }
+  if (typeof acting_masses_about_axis_z_enabled !== "undefined") {
+    this.Settings.acting_masses_about_axis_z_enabled = acting_masses_about_axis_z_enabled;
+  }
+};
+
+ModalAnalysisSettings.prototype.SetMaximalFrequency = function (frequency) {
+  // * @param   {integer}   frequency         Maximal number of frequency
+  ASSERT(typeof frequency != undefined || typeof frequency != "number", "Parameter must be assigned as an integer.");
+  if (this.Settings.number_of_modes_method === modal_analysis_settings.NUMBER_OF_MODES_METHOD_MAXIMUM_FREQUENCY) {
+    this.Settings.maxmimum_natural_frequency = frequency;
+  }
+};
+
+ModalAnalysisSettings.prototype.SetBeyondFrequency = function (frequency) {
+  // * @param   {integer}   frequency         Maximal number of frequency
+  ASSERT(typeof frequency != undefined || typeof frequency != "number", "Parameter must be assigned as an integer.");
+  this.Settings.find_eigenvectors_beyond_frequency = true;
+  this.Settings.frequency = frequency;
+};
+
+// ModalAnalysisSettings.prototype.GetNo = function () {
+//   return this.Settings.no;
+// };
+
+function SolverMethodType(solverMethod) {
+
+  const SolverMethod_dict = {
+    "METHOD_LANCZOS": modal_analysis_settings.METHOD_LANCZOS,
+    "METHOD_ROOT_OF_CHARACTERISTIC_POLYNOMIAL": modal_analysis_settings.METHOD_ROOT_OF_CHARACTERISTIC_POLYNOMIAL,
+    "METHOD_SUBSPACE_ITERATION": modal_analysis_settings.METHOD_SUBSPACE_ITERATION,
+    "METHOD_ICG_ITERATION": modal_analysis_settings.METHOD_ICG_ITERATION,
+    "SOLUTION_METHOD_SHIFTED_INVERSE_POWER_METHOD": modal_analysis_settings.SOLUTION_METHOD_SHIFTED_INVERSE_POWER_METHOD
+  };
+
+  if (solverMethod !== undefined) {
+
+    var equationSolver = SolverMethod_dict[solverMethod];
+    if (equationSolver === undefined) {
+      console.log("Wrong equation solver input. Value was: " + solverMethod);
+      console.log("Correct values are: ( " + Object.keys(EquationSolver_dict) + ")");
+      equationSolver = modal_analysis_settings.METHOD_LANCZOS;
+    }
+    return equationSolver;
+  } else {
+    return modal_analysis_settings.METHOD_LANCZOS;
+  }
+
+}
+
+function MassConversionType(massConversionMethod) {
+
+  const MassConversion_dict = {
+    "MASS_CONVERSION_TYPE_Z_COMPONENTS_OF_LOADS": modal_analysis_settings.MASS_CONVERSION_TYPE_Z_COMPONENTS_OF_LOADS,
+    "MASS_CONVERSION_TYPE_Z_COMPONENTS_OF_LOADS_IN_DIRECTION_OF_GRAVITY": modal_analysis_settings.MASS_CONVERSION_TYPE_Z_COMPONENTS_OF_LOADS_IN_DIRECTION_OF_GRAVITY,
+    "MASS_CONVERSION_TYPE_FULL_LOADS_AS_MASS": modal_analysis_settings.MASS_CONVERSION_TYPE_FULL_LOADS_AS_MASS
+  };
+
+  if (massConversionMethod !== undefined) {
+    var massConversion = MassConversion_dict[massConversionMethod];
+    if (massConversion === undefined) {
+      console.log("Wrong mass conversion input. Value was: " + massConversionMethod);
+      console.log("Correct values are: ( " + Object.keys(MassConversion_dict) + ")");
+      massConversion = modal_analysis_settings.MASS_CONVERSION_TYPE_Z_COMPONENTS_OF_LOADS;
+    }
+    return massConversion;
+  }
+  else {
+    return modal_analysis_settings.MASS_CONVERSION_TYPE_Z_COMPONENTS_OF_LOADS;
+  }
+}
+
+function MassMatrixType(massMatrixMethod) {
+
+  const MassMatrix_dict = {
+    "MASS_MATRIX_TYPE_DIAGONAL": modal_analysis_settings.MASS_MATRIX_TYPE_DIAGONAL,
+    "MASS_MATRIX_TYPE_DIAGONAL_WITH_TORSIONAL_ELEMENTS": modal_analysis_settings.MASS_MATRIX_TYPE_DIAGONAL_WITH_TORSIONAL_ELEMENTS,
+    "MASS_MATRIX_TYPE_CONSISTENT": modal_analysis_settings.MASS_MATRIX_TYPE_CONSISTENT,
+    "MASS_MATRIX_TYPE_UNIT": modal_analysis_settings.MASS_MATRIX_TYPE_UNIT
+  };
+
+  if (massMatrixMethod !== undefined) {
+    var massMatrix = MassMatrix_dict[massMatrixMethod];
+    if (massMatrix === undefined) {
+      console.log("Wrong equation solver input. Value was: " + massMatrixMethod);
+      console.log("Correct values are: ( " + Object.keys(MassMatrix_dict) + ")");
+      massMatrix = modal_analysis_settings.MASS_MATRIX_TYPE_DIAGONAL;
+    }
+    return massMatrix;
+  }
+  else {
+    return modal_analysis_settings.MASS_MATRIX_TYPE_DIAGONAL;
+  }
+}
+
+function SetActingMasses(MAS, actingMasses) {
+
+  if (actingMasses !== undefined && actingMasses.length === 6) {
+    MAS.acting_masses_about_axis_x_enabled = actingMasses[0];
+    MAS.acting_masses_about_axis_y_enabled = actingMasses[1];
+    MAS.acting_masses_about_axis_z_enabled = actingMasses[2];
+    MAS.acting_masses_in_direction_x_enabled = actingMasses[3];
+    MAS.acting_masses_in_direction_y_enabled = actingMasses[4];
+    MAS.acting_masses_in_direction_z_enabled = actingMasses[5];
+  }
+  else {
+    MAS.acting_masses_about_axis_x_enabled = true;
+    MAS.acting_masses_about_axis_y_enabled = true;
+    MAS.acting_masses_about_axis_z_enabled = true;
+    MAS.acting_masses_in_direction_x_enabled = true;
+    MAS.acting_masses_in_direction_y_enabled = true;
+    MAS.acting_masses_in_direction_z_enabled = true;
+  }
+}
+/**
+ * @memberof AnalysisSettings
+ * @param {*} no
+ * @param {*} name
+ * @returns {Object} ModalAnalysisSettings
+ */
+function CreateModalAnalysisSettings(no, name) {
+  var ModalAnalysisSettings = undefined;
+  if (no === undefined) {
+    var ModalAnalysisSettings = modal_analysis_settings.create();
+  }
+  else {
+    var ModalAnalysisSettings = modal_analysis_settings.create(no);
+  }
+  if (name !== undefined) {
+    ModalAnalysisSettings.user_defined_name_enabled = true;
+    ModalAnalysisSettings.name = name;
+  }
+  return ModalAnalysisSettings;
+}
